@@ -231,7 +231,7 @@ mod tests {
     }
 
     #[my_codegen::post(path = "ROUTES.signin")]
-    async fn signin_route_hander(id: Identity, path: web::Path<RedirectQuery>) -> HttpResponse {
+    async fn signin_route_hander(id: Identity, path: web::Query<RedirectQuery>) -> HttpResponse {
         id.remember("foo".into());
         let path = path.into_inner();
         if let Some(redirect_to) = path.redirect_to {

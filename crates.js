@@ -1,0 +1,1 @@
+window.ALL_CRATES = ["actix_auth_middleware"];

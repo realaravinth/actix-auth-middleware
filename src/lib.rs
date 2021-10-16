@@ -4,6 +4,156 @@
  * Use of this source code is governed by the Apache 2.0 and/or the MIT
  * License.
  */
+//!<div align="center"><h1>Actix Authentication Middleware</h1>
+//!
+//![![Documentation](https://img.shields.io/badge/docs-master-blue)](https://realaravinth.github.io/actix-auth-middleware/actix_auth_middleware/)
+//![![Build](https://github.com/realaravinth/actix-auth-middleware/actions/workflows/linux.yml/badge.svg)](https://github.com/realaravinth/actix-auth-middleware/actions/workflows/linux.yml)
+//![![codecov](https://codecov.io/gh/realaravinth/actix-auth-middleware/branch/master/graph/badge.svg?token=TYZXLOOHYQ)](https://codecov.io/gh/realaravinth/actix-auth-middleware)
+//!
+//![![dependency status](https://deps.rs/repo/github/realaravinth/actix-auth-middleware/status.svg)](https://deps.rs/repo/github/realaravinth/actix-auth-middleware)
+//!
+//!  <p>
+//!    <strong>Checks if session is authenticated</strong>
+//!  </p>
+//!<br /></div>
+//!
+//! ## What
+//!
+//! This library provides a generic middleware to protect authenticated
+//! routes from unauthenticated access. The middleware provides options to
+//! customise authentication checking mechanism, which enables it to
+//! support a wide range of session management mechanisms.
+//!
+//! If a session is authenticated, then the request will be dispatched to
+//! the matching handler and if unauthenticated, it will be redirected to a
+//! user specified route, ideally a sign in route.
+//!
+//! ## Usage
+//!
+//! ```rust,no_run
+//! use actix_auth_middleware::{Authentication, GetLoginRoute};
+//!
+//! use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
+//! use actix_web::http::header;
+//! use actix_web::FromRequest;
+//! use actix_web::{dev::Payload, App, HttpRequest, HttpResponse, HttpServer};
+//! use actix_web::{web, Responder};
+//! use serde::Deserialize;
+//!
+//! pub struct Routes {
+//!     signin: &'static str,
+//!     authenticated_route: &'static str,
+//! }
+//!
+//! impl Routes {
+//!     const fn new() -> Self {
+//!         let signin = "/siginin";
+//!         let authenticated_route = "/";
+//!
+//!         Self {
+//!             signin,
+//!             authenticated_route,
+//!         }
+//!     }
+//! }
+//!
+//! impl GetLoginRoute for Routes {
+//!     fn get_login_route(&self, src: Option<&str>) -> String {
+//!         if let Some(redirect_to) = src {
+//!             format!(
+//!                 "{}?redirect_to={}",
+//!                 self.signin,
+//!                 urlencoding::encode(redirect_to)
+//!             )
+//!         } else {
+//!             self.signin.to_string()
+//!         }
+//!     }
+//! }
+//!
+//! pub const ROUTES: Routes = Routes::new();
+//!
+//! fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
+//!     matches!(
+//!         Identity::from_request(r, pl)
+//!             .into_inner()
+//!             .map(|id| id.identity()),
+//!         Ok(Some(_))
+//!     )
+//! }
+//!
+//! fn get_middleware() -> Authentication<Routes> {
+//!     Authentication::new(ROUTES, is_authenticated)
+//! }
+//!
+//! fn get_identity_service() -> IdentityService<CookieIdentityPolicy> {
+//!     IdentityService::new(
+//!         CookieIdentityPolicy::new(&[0; 32])
+//!             .path("/")
+//!             .name("auth")
+//!             .max_age_secs(60 * 60 * 24 * 365)
+//!             .domain("localhost")
+//!             .secure(false),
+//!     )
+//! }
+//!
+//! #[derive(Deserialize)]
+//! pub struct RedirectQuery {
+//!     pub redirect_to: Option<String>,
+//! }
+//!
+//! #[my_codegen::get(path = "ROUTES.signin")]
+//! async fn signin_route_hander(id: Identity, path: web::Query<RedirectQuery>) -> HttpResponse {
+//!     id.remember("foo".into());
+//!     println!("authenticated");
+//!     let path = path.into_inner();
+//!     if let Some(redirect_to) = path.redirect_to {
+//!         println!("redirecting");
+//!         HttpResponse::Found()
+//!             .insert_header((header::LOCATION, redirect_to))
+//!             .finish()
+//!     } else {
+//!         let page = format!(
+//!             "
+//!         <html>
+//!         <body>
+//!         <p>
+//!         You are authenticated
+//!         <a href='/{}'>Click here to view restricted resource</a>
+//!         </p>
+//!         </body>
+//!         </html>
+//!         ",
+//!             ROUTES.authenticated_route
+//!         );
+//!         HttpResponse::Ok()
+//!             .content_type("text/html; charset=utf-8")
+//!             .body(page)
+//!     }
+//! }
+//!
+//! fn services(cfg: &mut web::ServiceConfig) {
+//!     cfg.service(signin_route_hander);
+//!     cfg.service(authenticated_route_handler);
+//! }
+//!
+//! #[my_codegen::get(path = "ROUTES.authenticated_route", wrap = "get_middleware()")]
+//! async fn authenticated_route_handler() -> impl Responder {
+//!     HttpResponse::Ok()
+//!         .content_type("text/html; charset=utf-8")
+//!         .body("You are viewing a restricted resoucre")
+//! }
+//!
+//! #[actix_web::main]
+//! async fn main() -> std::io::Result<()> {
+//!     HttpServer::new(move || App::new().wrap(get_identity_service()).configure(services))
+//!         .bind("localhost:7000")
+//!         .unwrap()
+//!         .run()
+//!         .await?;
+//!     Ok(())
+//! }
+//!```
 use std::rc::Rc;
 
 use actix_http::body::AnyBody;
@@ -13,18 +163,64 @@ use actix_web::{dev::Payload, http, Error, HttpRequest, HttpResponse};
 
 use futures::future::{ok, Either, Ready};
 
+/// The route to which unauthenticated sessions should be redirected to. `src` specifies the
+/// destination of the request, which can be used to redirect the user post authentication
 pub trait GetLoginRoute {
+    ///
+    /// ```rust
+    ///use actix_auth_middleware::{Authentication, GetLoginRoute};
+    ///
+    /// pub struct Routes {
+    ///     signin: &'static str,
+    ///     authenticated_route: &'static str,
+    /// }
+    ///
+    /// impl GetLoginRoute for Routes {
+    /// // return login route and if redirection mechanism is implemented at the login
+    /// // handler, then set redirection location
+    ///     fn get_login_route(&self, src: Option<&str>) -> String {
+    ///         if let Some(redirect_to) = src {
+    ///             format!(
+    ///                 "{}?redirect_to={}",
+    ///                 self.signin,
+    ///                 urlencoding::encode(redirect_to)
+    ///             )
+    ///         } else {
+    ///             self.signin.to_string()
+    ///         }
+    ///     }
+    /// }
+    /// ```
     fn get_login_route(&self, src: Option<&str>) -> String;
 }
 
-type IsAuthenticated = fn(&HttpRequest, &mut Payload) -> bool;
+/// Function to check if a request is authenticated
+/// ```rust
+/// # use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
+/// # use actix_web::http::header;
+/// # use actix_web::FromRequest;
+/// # use actix_web::{dev::Payload, App, HttpRequest, HttpResponse, HttpServer};
+/// # use actix_web::{web, Responder};
+/// // implementation for actix::Identity based session managment
+/// fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
+///     matches!(
+///         Identity::from_request(r, pl)
+///             .into_inner()
+///             .map(|id| id.identity()),
+///         Ok(Some(_))
+///     )
+/// }
+/// ```
+pub type IsAuthenticated = fn(&HttpRequest, &mut Payload) -> bool;
 
+/// Authentication middleware configuration
 pub struct Authentication<T: GetLoginRoute> {
     login: Rc<T>,
     is_authenticated: IsAuthenticated,
 }
 
 impl<T: GetLoginRoute> Authentication<T> {
+    /// Create a new instance of authentication middleware
     pub fn new(login: T, is_authenticated: IsAuthenticated) -> Self {
         let login = Rc::new(login);
         Self {
@@ -55,6 +251,8 @@ where
         })
     }
 }
+
+/// Authentication middleware
 pub struct AuthenticationMiddleware<S, GT: GetLoginRoute> {
     service: S,
     login: Rc<GT>,

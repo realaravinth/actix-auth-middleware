@@ -534,7 +534,7 @@
     }
 
     <span class="attribute">#[<span class="ident">my_codegen::post</span>(<span class="ident">path</span> <span class="op">=</span> <span class="string">&quot;ROUTES.signin&quot;</span>)]</span>
-    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">signin_route_hander</span>(<span class="ident">id</span>: <span class="ident">Identity</span>, <span class="ident">path</span>: <span class="ident">web::Path</span><span class="op">&lt;</span><span class="ident">RedirectQuery</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
+    <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">signin_route_hander</span>(<span class="ident">id</span>: <span class="ident">Identity</span>, <span class="ident">path</span>: <span class="ident">web::Query</span><span class="op">&lt;</span><span class="ident">RedirectQuery</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HttpResponse</span> {
         <span class="ident">id</span>.<span class="ident">remember</span>(<span class="string">&quot;foo&quot;</span>.<span class="ident">into</span>());
         <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">into_inner</span>();
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">redirect_to</span>) <span class="op">=</span> <span class="ident">path</span>.<span class="ident">redirect_to</span> {

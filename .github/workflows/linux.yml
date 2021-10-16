@@ -38,7 +38,7 @@ jobs:
           override: true
 
       - name: check build
-        run: make build
+        run: make
 
       - name: tests
         timeout-minutes: 40

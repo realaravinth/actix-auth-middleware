@@ -31,3 +31,11 @@ Add this to your `Cargo.toml`:
 ```toml
 actix-auth-middleware = { version = "0.1", git = "https://github.com/realaravinth/actix-auth-middleware" }
 ```
+
+## Example
+
+1. Cookie session management:
+   source : [`cookie-identity.rs`]("./examples/cookie-identity.rs)
+    ```bash
+    cargo run --example cookie-identity
+    ```

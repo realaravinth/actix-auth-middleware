@@ -4,7 +4,6 @@
  * Use of this source code is governed by the Apache 2.0 and/or the MIT
  * License.
  */
-
 use actix_auth_middleware::{Authentication, GetLoginRoute};
 
 use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};

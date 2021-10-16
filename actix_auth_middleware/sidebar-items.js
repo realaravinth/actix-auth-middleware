@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Authentication",""],["AuthenticationMiddleware",""]],"trait":[["GetLoginRoute",""]]});
+initSidebarItems({"struct":[["Authentication","Authentication middleware configuration"],["AuthenticationMiddleware","Authentication middleware"]],"trait":[["GetLoginRoute","The route to which unauthenticated sessions should be redirected to. `src` specifies the destination of the request, which can be used to redirect the user post authentication"]],"type":[["IsAuthenticated","Function to check if a request is authenticated"]]});

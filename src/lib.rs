@@ -228,6 +228,23 @@ impl<T: GetLoginRoute> Authentication<T> {
             is_authenticated,
         }
     }
+
+    #[cfg(feature = "actix_identity_backend")]
+    /// `actix::identity` backend
+    pub fn with_identity(login: T) -> Authentication<T> {
+        use actix_web::FromRequest;
+
+        fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
+            matches!(
+                actix_identity::Identity::from_request(r, pl)
+                    .into_inner()
+                    .map(|id| id.identity()),
+                Ok(Some(_))
+            )
+        }
+
+        Authentication::new(login, is_authenticated)
+    }
 }
 
 impl<S, GT> Transform<S, ServiceRequest> for Authentication<GT>
@@ -299,22 +316,13 @@ mod tests {
     use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
     use actix_web::cookie::Cookie;
     use actix_web::http::header;
-    use actix_web::{dev::ServiceResponse, http::StatusCode, FromRequest};
+    use actix_web::{dev::ServiceResponse, http::StatusCode};
     use actix_web::{test, web, Responder};
     use serde::Deserialize;
     use url::Url;
 
-    fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
-        matches!(
-            Identity::from_request(r, pl)
-                .into_inner()
-                .map(|id| id.identity()),
-            Ok(Some(_))
-        )
-    }
-
     fn get_middleware() -> Authentication<Routes> {
-        Authentication::new(ROUTES, is_authenticated)
+        Authentication::with_identity(ROUTES)
     }
 
     fn get_identity_service() -> IdentityService<CookieIdentityPolicy> {

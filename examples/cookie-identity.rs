@@ -8,9 +8,8 @@ use actix_auth_middleware::{Authentication, GetLoginRoute};
 
 use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
 use actix_web::http::header;
-use actix_web::FromRequest;
-use actix_web::{dev::Payload, App, HttpRequest, HttpResponse, HttpServer};
 use actix_web::{web, Responder};
+use actix_web::{App, HttpResponse, HttpServer};
 use serde::Deserialize;
 
 pub struct Routes {
@@ -46,17 +45,8 @@ impl GetLoginRoute for Routes {
 
 pub const ROUTES: Routes = Routes::new();
 
-fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
-    matches!(
-        Identity::from_request(r, pl)
-            .into_inner()
-            .map(|id| id.identity()),
-        Ok(Some(_))
-    )
-}
-
 fn get_middleware() -> Authentication<Routes> {
-    Authentication::new(ROUTES, is_authenticated)
+    Authentication::with_identity(ROUTES)
 }
 
 fn get_identity_service() -> IdentityService<CookieIdentityPolicy> {

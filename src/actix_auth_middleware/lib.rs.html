@@ -497,15 +497,6 @@
 <span id="497">497</span>
 <span id="498">498</span>
 <span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
 </pre><pre class="rust">
 <span class="comment">/*
  * Copyright (C) 2021  Aravinth Manivannan &lt;realaravinth@batsense.net&gt;
@@ -545,7 +536,7 @@
 <span class="doccomment">//! use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};</span>
 <span class="doccomment">//! use actix_web::http::header;</span>
 <span class="doccomment">//! use actix_web::FromRequest;</span>
-<span class="doccomment">//! use actix_web::{dev::Payload, App, HttpRequest, HttpResponse, HttpServer};</span>
+<span class="doccomment">//! use actix_web::{App, HttpResponse, HttpServer};</span>
 <span class="doccomment">//! use actix_web::{web, Responder};</span>
 <span class="doccomment">//! use serde::Deserialize;</span>
 <span class="doccomment">//!</span>
@@ -582,17 +573,8 @@
 <span class="doccomment">//!</span>
 <span class="doccomment">//! pub const ROUTES: Routes = Routes::new();</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! fn is_authenticated(r: &amp;HttpRequest, pl: &amp;mut Payload) -&gt; bool {</span>
-<span class="doccomment">//!     matches!(</span>
-<span class="doccomment">//!         Identity::from_request(r, pl)</span>
-<span class="doccomment">//!             .into_inner()</span>
-<span class="doccomment">//!             .map(|id| id.identity()),</span>
-<span class="doccomment">//!         Ok(Some(_))</span>
-<span class="doccomment">//!     )</span>
-<span class="doccomment">//! }</span>
-<span class="doccomment">//!</span>
 <span class="doccomment">//! fn get_middleware() -&gt; Authentication&lt;Routes&gt; {</span>
-<span class="doccomment">//!     Authentication::new(ROUTES, is_authenticated)</span>
+<span class="doccomment">//!     Authentication::with_identity(ROUTES)</span>
 <span class="doccomment">//! }</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! fn get_identity_service() -&gt; IdentityService&lt;CookieIdentityPolicy&gt; {</span>

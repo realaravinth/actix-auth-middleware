@@ -1,11 +1,11 @@
 default: ## Debug build
-	cargo build
+	cargo build --all-features --all --bins --examples --tests
 
 clean: ## Clean all build artifacts and dependencies
 	@cargo clean
 
 coverage: ## Generate HTML code coverage
-	cargo tarpaulin -t 1200 --out Html
+	cargo tarpaulin --all-features -t 1200 --out Html
 
 dev-env: ## Download development dependencies
 	cargo fetch
@@ -20,8 +20,8 @@ lint: ## Lint codebase
 test: ## Run tests
 	cargo test --all-features --no-fail-fast
 
-xml-test-coverage: migrate  ## Generate cobertura.xml test coverage
-	cargo tarpaulin -t 1200 --out Xml
+xml-test-coverage: ## Generate cobertura.xml test coverage
+	cargo tarpaulin --all-features -t 1200 --out Xml
 
 help: ## Prints help for targets with comments
 	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z_-]+:.*?## .*$$' | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

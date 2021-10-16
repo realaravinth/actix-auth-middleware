@@ -38,24 +38,15 @@ jobs:
           override: true
 
       - name: check build
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --all --bins --examples --tests
+        run: make build
 
       - name: tests
-        uses: actions-rs/cargo@v1
         timeout-minutes: 40
-        with:
-          command: test
-          args: --all --all-features --no-fail-fast
+        run: make test
 
       - name: generate documentation
         if: matrix.version == 'stable' && (github.repository == 'realaravinth/actix-auth-middleware')
-        uses: actions-rs/cargo@v1
-        with:
-          command: doc
-          args: --no-deps --workspace --all-features
+        run: make doc
 
       - name: Deploy to GitHub Pages
         if: matrix.version == 'stable' && (github.repository == 'realaravinth/actix-auth-middleware')

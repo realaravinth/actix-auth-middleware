@@ -3,14 +3,23 @@ name = "actix-auth-middleware"
 version = "0.1.0"
 edition = "2018"
 
+[lib]
+name = "actix_auth_middleware"
+path = "src/lib.rs"
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 actix-web = "4.0.0-beta.8"
 actix-service = "2.0"
+futures = "0.3.15"
 actix-http = "3.0.0-beta.8"
-actix-identity = "0.4.0-beta.2"
 
 [dev-dependencies]
 actix-rt = "2"
+actix-identity = "0.4.0-beta.2"
 my-codegen = {package = "actix-web-codegen", git ="https://github.com/realaravinth/actix-web"}
+url = "2.2"
+serde = "1"
+urlencoding = "2.1.0"

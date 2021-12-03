@@ -15,11 +15,11 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.0.0-beta.8"
+actix-web = "4.0.0-beta.12"
 actix-service = "2.0"
-futures = "0.3.15"
-actix-http = "3.0.0-beta.8"
-actix-identity = { version = "0.4.0-beta.2", optional = true }
+futures = "0.3.18"
+actix-http = "3.0.0-beta.13"
+actix-identity = { version = "0.4.0-beta.4", optional = true }
 
 [features]
 default = []
@@ -27,7 +27,7 @@ actix_identity_backend = ["actix-identity"]
 
 [dev-dependencies]
 actix-rt = "2"
-actix-identity = "0.4.0-beta.2"
+actix-identity = "0.4.0-beta.4"
 my-codegen = {package = "actix-web-codegen", git ="https://github.com/realaravinth/actix-web"}
 url = "2.2"
 serde = "1"

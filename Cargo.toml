@@ -4,9 +4,10 @@ version = "0.1.0"
 readme = "README.md"
 license = "MIT OR Apache-2.0"
 authors = ["Aravinth Manivannan <realaravinth@batsense.net>"]
+homepage = "https://github.com/realaravinth/actix-auth-middleware"
 repository = "https://github.com/realaravinth/actix-auth-middleware"
 documentation = "https://realaravinth.github.io/actix-auth-middleware/actix_auth_middleware/"
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "actix_auth_middleware"
@@ -15,11 +16,11 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-actix-web = "4.0.0-beta.12"
+actix-web = "4.0.0-beta.14"
 actix-service = "2.0"
-futures = "0.3.18"
-actix-http = "3.0.0-beta.13"
-actix-identity = { version = "0.4.0-beta.4", optional = true }
+futures = "0.3.17"
+actix-http = "3.0.0-beta.15"
+actix-identity = { version = "0.4.0-beta.5", optional = true }
 
 [features]
 default = []
@@ -27,7 +28,7 @@ actix_identity_backend = ["actix-identity"]
 
 [dev-dependencies]
 actix-rt = "2"
-actix-identity = "0.4.0-beta.4"
+actix-identity = "0.4.0-beta.5"
 my-codegen = {package = "actix-web-codegen", git ="https://github.com/realaravinth/actix-web"}
 url = "2.2"
 serde = "1"

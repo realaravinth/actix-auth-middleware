@@ -27,7 +27,7 @@ user specified route, ideally a sign in route.
 Add this to your `Cargo.toml`:
 
 ```toml
-actix-auth-middleware = { version = "0.1", git = "https://github.com/realaravinth/actix-auth-middleware" }
+actix-auth-middleware = "0.1"
 ```
 
 ## Example

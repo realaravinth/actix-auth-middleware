@@ -147,7 +147,7 @@
 //!```
 use std::rc::Rc;
 
-use actix_http::body::AnyBody;
+use actix_http::body::BoxBody;
 use actix_service::{Service, Transform};
 use actix_web::dev::{ServiceRequest, ServiceResponse};
 use actix_web::{dev::Payload, http, Error, HttpRequest, HttpResponse};
@@ -192,7 +192,7 @@ pub trait GetLoginRoute {
 /// # use actix_web::FromRequest;
 /// # use actix_web::{dev::Payload, App, HttpRequest, HttpResponse, HttpServer};
 /// # use actix_web::{web, Responder};
-/// // implementation for actix::Identity based session managment
+/// // implementation for actix::Identity based session management
 /// fn is_authenticated(r: &HttpRequest, pl: &mut Payload) -> bool {
 ///     matches!(
 ///         Identity::from_request(r, pl)
@@ -240,11 +240,11 @@ impl<T: GetLoginRoute> Authentication<T> {
 
 impl<S, GT> Transform<S, ServiceRequest> for Authentication<GT>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<AnyBody>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<BoxBody>, Error = Error>,
     S::Future: 'static,
     GT: GetLoginRoute,
 {
-    type Response = ServiceResponse<AnyBody>;
+    type Response = ServiceResponse<BoxBody>;
     type Error = Error;
     type Transform = AuthenticationMiddleware<S, GT>;
     type InitError = ();
@@ -269,11 +269,11 @@ pub struct AuthenticationMiddleware<S, GT: GetLoginRoute> {
 
 impl<S, GT> Service<ServiceRequest> for AuthenticationMiddleware<S, GT>
 where
-    S: Service<ServiceRequest, Response = ServiceResponse<AnyBody>, Error = Error>,
+    S: Service<ServiceRequest, Response = ServiceResponse<BoxBody>, Error = Error>,
     S::Future: 'static,
     GT: GetLoginRoute,
 {
-    type Response = ServiceResponse<AnyBody>;
+    type Response = ServiceResponse<BoxBody>;
     type Error = Error;
     #[allow(clippy::type_complexity)]
     type Future = Either<S::Future, Ready<Result<Self::Response, Self::Error>>>;
@@ -304,6 +304,7 @@ where
 mod tests {
     use super::*;
 
+    use actix_http::body::EitherBody;
     use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
     use actix_web::cookie::Cookie;
     use actix_web::http::header;
@@ -363,7 +364,7 @@ mod tests {
     }
 
     /// signin util
-    pub async fn signin() -> ServiceResponse {
+    pub async fn signin() -> ServiceResponse<EitherBody<BoxBody>> {
         let app = get_app!().await;
 
         let signin_resp = test::call_service(&app, post_request!(ROUTES.signin).to_request()).await;
@@ -371,7 +372,7 @@ mod tests {
         signin_resp
     }
 
-    pub async fn authenticated_route(cookies: Cookie<'_>) -> ServiceResponse {
+    pub async fn authenticated_route(cookies: Cookie<'_>) -> ServiceResponse<EitherBody<BoxBody>> {
         let app = get_app!().await;
         let auth_resp = test::call_service(
             &app,

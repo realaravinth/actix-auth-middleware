@@ -450,7 +450,6 @@ mod tests {
     async fn auth_middleware_works() {
         fn make_uri(path: &str, queries: &Option<Vec<(&str, &str)>>) -> String {
             let mut url = Url::parse("http://x/").unwrap();
-            let final_path;
             url.set_path(path);
 
             if let Some(queries) = queries {
@@ -461,11 +460,10 @@ mod tests {
                     });
                 }
 
-                final_path = format!("{}?{}", url.path(), url.query().unwrap());
+                format!("{}?{}", url.path(), url.query().unwrap())
             } else {
-                final_path = url.path().to_string();
+                url.path().to_string()
             }
-            final_path
         }
 
         let queries = Some(vec![

@@ -27,7 +27,12 @@ user specified route, ideally a sign in route.
 Add this to your `Cargo.toml`:
 
 ```toml
-actix-auth-middleware = "0.1"
+[dependencies.actix-auth-middleware]
+version = "0.2.0"
+git = "https://github.com/realaravinth/actix-auth-middleware"
+# if using https://crates.io/crates/actix-identity, uncomment the
+#following line:
+#features = ["actix-identity"]
 ```
 
 ## Example
